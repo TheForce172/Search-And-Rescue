@@ -39,12 +39,17 @@ namespace SARController
 
         private void button1_Click(object sender, EventArgs e)
         {
-            port.Write("H");
+            port.Write("F");
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             port.Write("L");
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            port.Write("B");
         }
 
         private void DataReceivedHandler(
@@ -94,6 +99,16 @@ namespace SARController
             {
                 labelContents = "not connected yet ";
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            port.Write("R");
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            port.Write("S");
         }
     }
 }
