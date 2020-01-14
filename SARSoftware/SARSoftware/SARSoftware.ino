@@ -1,6 +1,6 @@
 #include <Zumo32U4.h>
 
-#define QTR_THRESHOLD     1000  // microseconds
+#define QTR_THRESHOLD     100  // microseconds
 
 Zumo32U4LineSensors lineSensors;
 Zumo32U4Motors motors;
