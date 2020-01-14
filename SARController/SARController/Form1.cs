@@ -107,8 +107,18 @@ namespace SARController
         }
 
         private void button5_Click(object sender, EventArgs e)
-        {
             port.Write("S");
+        {
+        }
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+            {
+                port.Write("A");
+            } else
+            {
+                port.Write("M");
+            }
         }
     }
 }
