@@ -84,6 +84,10 @@ namespace SARController
             }
             button1.Enabled = false;
             button2.Enabled = false;
+            button3.Enabled = false;
+            button4.Enabled = false;
+            button5.Enabled = false;
+            checkBox1.Enabled = false;
             try
             {
                 port = new SerialPort(portName, 9600);
@@ -94,6 +98,10 @@ namespace SARController
                 timer1.Start();
                 button1.Enabled = true;
                 button2.Enabled = true;
+                button3.Enabled = true;
+                button4.Enabled = true;
+                button5.Enabled = true;
+                checkBox1.Enabled = true;
             }
             catch (Exception err)
             {
@@ -107,16 +115,26 @@ namespace SARController
         }
 
         private void button5_Click(object sender, EventArgs e)
-            port.Write("S");
         {
+            port.Write("S");
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox1.Checked)
             {
+                button1.Enabled = false;
+                button2.Enabled = false;
+                button3.Enabled = false;
+                button4.Enabled = false;
+                button5.Enabled = false;
                 port.Write("A");
             } else
             {
+                button1.Enabled = true;
+                button2.Enabled = true;
+                button3.Enabled = true;
+                button4.Enabled = true;
+                button5.Enabled = true;
                 port.Write("M");
             }
         }
