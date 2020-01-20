@@ -10,11 +10,18 @@ unsigned int lineSensorValues[NUM_SENSORS];
 
 void setup() {
   // put your setup code here, to run once:
-
+  
+  Serial1.begin(9600);
   lineSensors.initThreeSensors();
 }
 
 void loop() {
+  bool autoMode;
+  char incomingByte = 0; // for incoming serial data
+  if (Serial1.available() > 0) {
+    // read the incoming byte:
+    incomingByte = Serial1.read();
+    
   // put your main code here, to run repeatedly:
   borderPathing();
 }
