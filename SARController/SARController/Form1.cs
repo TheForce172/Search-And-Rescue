@@ -16,13 +16,16 @@ namespace SARController
         SerialPort port;
         string labelContents = "";
         public Form1()
-        {
+        { 
             InitializeComponent();
             List<string> data = new List<string>();
             data.Add(" ");
             comboBox1.DataSource = data.Concat(SerialPort.GetPortNames()).ToList();
             button1.Enabled = false;
             button2.Enabled = false;
+            btn_send.Enabled = false;
+            textBox1.Enabled = false;
+            btn_Start.Enabled = false;
         }
 
         private string LabelContents
@@ -59,6 +62,10 @@ namespace SARController
             SerialPort sp = (SerialPort)sender;
             string indata = sp.ReadLine();
             LabelContents = "Data Received:" + indata;
+            this.Invoke(new MethodInvoker(delegate ()
+            {
+                databox.Text = databox.Text + indata + "\n";
+            }));
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -88,6 +95,9 @@ namespace SARController
             button4.Enabled = false;
             button5.Enabled = false;
             checkBox1.Enabled = false;
+            btn_send.Enabled = false;
+            textBox1.Enabled = false;
+            btn_Start.Enabled = false;
             try
             {
                 port = new SerialPort(portName, 9600);
@@ -102,6 +112,8 @@ namespace SARController
                 button4.Enabled = true;
                 button5.Enabled = true;
                 checkBox1.Enabled = true;
+                btn_send.Enabled = false;
+                textBox1.Enabled = false;
             }
             catch (Exception err)
             {
@@ -127,6 +139,7 @@ namespace SARController
                 button3.Enabled = false;
                 button4.Enabled = false;
                 button5.Enabled = false;
+                btn_Start.Enabled = true;
                 port.Write("A");
             } else
             {
@@ -135,8 +148,19 @@ namespace SARController
                 button3.Enabled = true;
                 button4.Enabled = true;
                 button5.Enabled = true;
+                btn_Start.Enabled = false;
                 port.Write("M");
             }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            port.Write("s");
+        }
+
+        private void btn_send_Click(object sender, EventArgs e)
+        {
+            port.Write(textBox1.Text);
         }
     }
 }
