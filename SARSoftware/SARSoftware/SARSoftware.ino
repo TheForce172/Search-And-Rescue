@@ -1,20 +1,18 @@
 #include <Wire.h>
 
-
-
 #include <Zumo32U4.h>
 
-#define QTR_THRESHOLD     100  // microseconds
+#define QTR_THRESHOLD 100 // microseconds
 
 Zumo32U4LineSensors lineSensors;
 Zumo32U4Motors motors;
 L3G gyro;
 
-#define REVERSE_SPEED     200  // 0 is stopped, 400 is full speed
-#define TURN_SPEED        200
-#define FORWARD_SPEED     200
-#define REVERSE_DURATION  200  // ms
-#define TURN_DURATION     300  // ms
+#define REVERSE_SPEED 200 // 0 is stopped, 400 is full speed
+#define TURN_SPEED 200
+#define FORWARD_SPEED 200
+#define REVERSE_DURATION 200 // ms
+#define TURN_DURATION 300    // ms
 #define NUM_SENSORS 3
 unsigned int lineSensorValues[NUM_SENSORS];
 bool autoMode = false;
@@ -24,34 +22,41 @@ int16_t gyroOffset;
 uint16_t gyroLastUpdate = 0;
 uint32_t turnAngle = 0;
 int16_t turnRate;
-void setup() {
+void setup()
+{
   // put your setup code here, to run once:
-  
+
   Serial1.begin(9600);
   turnSensorSetup();
   lineSensors.initThreeSensors();
-    Serial1.println("Ping");
+  Serial1.println("Robot Started");
 }
 
-void loop() {
+void loop()
+{
   int incomingByte = 0; // for incoming serial data
-  if (Serial1.available() > 0) {
+  if (Serial1.available() > 0)
+  {
     // read the incoming byte:
     incomingByte = Serial1.read();
     //Serial1.printlnln("Recived " + incomingByte);
-    if(autoMode == false){
+    //Manual control pass the order
+    if (autoMode == false)
+    {
       manualOrder(incomingByte);
     }
-    else {
-        autoModeRun()
+    //Same for auto
+    else
+    {
+      autoModeRun(incomingByte);
     }
   }
-  // put your main code here, to run repeatedly:
 }
 
-String borderPathing(){
+String borderPathing()
+{
   lineSensors.read(lineSensorValues);
-    if (lineSensorValues[0] < QTR_THRESHOLD)
+  if (lineSensorValues[0] < QTR_THRESHOLD)
   {
     // If leftmost sensor detects line, reverse and turn to the
     // right.
@@ -78,46 +83,108 @@ String borderPathing(){
   }
 }
 
-void manualOrder(int order){
-  switch(order){
-    case 'F':
-      motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
-      Serial1.println('F');
-      break;
-      case 'L':
-      turn('L');
-      Serial1.println('L');
-      break;
-            case 'R':
-      turn('R');
-      Serial1.println('R');
-      break;
-      case 'S':
-      motors.setSpeeds(0, 0);
-      Serial1.println('S');
-      break;
-      case 'B':
-      motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
-      Serial1.println('B');
-      break;
-      case 'A':
-      autoMode = true;
-      Serial1.println('A');
-      break;
-      default:
-       Serial1.println("Invalid Command");
-       break;
+void manualOrder(int order)
+{
+  switch (order)
+  {
+  case 'F':
+    motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+    Serial1.println('F');
+    break;
+  case 'L':
+    turn('L');
+    Serial1.println('L');
+    break;
+  case 'R':
+    turn('R');
+    Serial1.println('R');
+    break;
+  case 'S':
+    motors.setSpeeds(0, 0);
+    Serial1.println('S');
+    break;
+  case 'B':
+    motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+    Serial1.println('B');
+    break;
+  case 'A':
+    autoMode = true;
+    Serial1.println('A');
+    break;
+  default:
+    Serial1.println("Invalid Command");
+    break;
   }
 }
 
-void autoModeRun(int order) {
-  
+void autoModeRun(int order)
+{
+  String state;
+  switch (order)
+  {
+  case 'G':
+    Serial1.println('Starting Auto');
+    do
+    {
+      state = borderPathing();
+      if (Serial1.available() > 0)
+      {
+        order = Serial1.read();
+        switch(order){
+          case 'Ro': {
+            //roomSearch();
+            break;
+          }
+                     default:
+              Serial1.println("Invalid Command");
+              break;
+        }
+      }
+      if (state == 'blocked')
+      {
+        Serial1.println("Blocked: Please provide orders");
+        bool done = false;
+        do
+        {
+          if (Serial1.available() > 0)
+          {
+            // read the incoming byte:
+            order = Serial1.read();
+            //Serial1.printlnln("Recived " + incomingByte);
+            //Manual control pass the order
+            switch (order)
+            {
+            case 'L':
+              turn('L');
+              done = true;
+              break;
+            case 'R':
+              turn('R');
+              done = true;
+              break;
+            case 'H':
+              //returnMode();
+              done = true;
+              state = "end";
+              break;
+            default:
+              Serial1.println("Invalid Command");
+              break;
+            }
+          }
+        } while (done == false);
+      }
+    } while (state != "end");
+  default:
+    Serial1.println("Invalid Command");
+    break;
+  }
 }
 
 //turn sensor setup and code from
 //https://github.com/pololu/zumo-32u4-arduino-library/tree/master/examples/MazeSolver
 
-  void turnSensorSetup()
+void turnSensorSetup()
 {
   Wire.begin();
   gyro.init();
@@ -141,7 +208,8 @@ void autoModeRun(int order) {
   for (uint16_t i = 0; i < 1024; i++)
   {
     // Wait for new data to be available, then read it.
-    while(!gyro.readReg(L3G::STATUS_REG) & 0x08);
+    while (!gyro.readReg(L3G::STATUS_REG) & 0x08)
+      ;
     gyro.read();
 
     // Add the Z axis reading to the total.
@@ -201,13 +269,12 @@ void turn(char dir)
 
   turnSensorReset();
 
-
-  switch(dir)
+  switch (dir)
   {
   case 'B':
     // Turn left 125 degrees using the gyro.
     motors.setSpeeds(0, TURN_SPEED);
-    while((int32_t)turnAngle < turnAngle45 * 3)
+    while ((int32_t)turnAngle < turnAngle45 * 3)
     {
       turnSensorUpdate();
     }
@@ -217,7 +284,7 @@ void turn(char dir)
     // Turn left 45 degrees using the gyro.
     motors.setSpeeds(0, TURN_SPEED);
     Serial1.println("Turning");
-    while((int32_t)turnAngle < turnAngle45 * 2)
+    while ((int32_t)turnAngle < turnAngle45 * 2)
     {
       turnSensorUpdate();
     }
@@ -227,7 +294,7 @@ void turn(char dir)
     // Turn right 45 degrees using the gyro.
     motors.setSpeeds(TURN_SPEED, 0);
     Serial1.println("Turning");
-    while((int32_t)turnAngle > -turnAngle45 * 2)
+    while ((int32_t)turnAngle > -turnAngle45 * 2)
     {
       turnSensorUpdate();
     }
@@ -241,4 +308,4 @@ void turn(char dir)
   // Turn the rest of the way using the line sensors.
   motors.setSpeeds(0, 0);
   Serial1.println("Turning complete");
-  }
+}
