@@ -155,7 +155,7 @@ namespace SARController
 
         private void button6_Click(object sender, EventArgs e)
         {
-            port.Write("s");
+            port.Write("G");
         }
 
         private void btn_send_Click(object sender, EventArgs e)
