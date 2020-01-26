@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include "ListT.h"
 
 #include <Zumo32U4.h>
 
@@ -22,6 +23,10 @@ int16_t gyroOffset;
 uint16_t gyroLastUpdate = 0;
 uint32_t turnAngle = 0;
 int16_t turnRate;
+
+uint16_t roomCount=0;
+List<int> OccupidRooms;
+
 void setup()
 {
   // put your setup code here, to run once:
@@ -76,11 +81,18 @@ String borderPathing()
     delay(TURN_DURATION);
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
+  else if (lineSensorValues[NUM_SENSORS] < QTR_THRESHOLD){
+    motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+    delay(300);
+    motors.setSpeeds(0, 0);
+    return("Blocked");
+  }
   else
   {
     // Otherwise, go straight.
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
+  return("clear");
 }
 
 void manualOrder(int order)
@@ -140,7 +152,7 @@ void autoModeRun(int order)
               break;
         }
       }
-      if (state == 'blocked')
+      if (state == "Blocked")
       {
         Serial1.println("Blocked: Please provide orders");
         bool done = false;
@@ -162,6 +174,10 @@ void autoModeRun(int order)
               turn('R');
               done = true;
               break;
+              case'B':
+              turn('B');
+              done = true;
+              break;
             case 'H':
               //returnMode();
               done = true;
@@ -179,6 +195,63 @@ void autoModeRun(int order)
     Serial1.println("Invalid Command");
     break;
   }
+}
+
+void roomSearch(){
+  bool done;
+  int order;
+          do
+        {
+          if (Serial1.available() > 0)
+          {
+            // read the incoming byte:
+            
+            order = Serial1.read();
+            //Serial1.printlnln("Recived " + incomingByte);
+            //Manual control pass the order
+            switch (order)
+            {
+            case 'L':
+            Serial1.println("Entering Room Left");
+              turn('L');
+              done = true;
+              break;
+            case 'R':
+              Serial1.println("Entering Room Right");
+              turn('R');
+              done = true;
+              break;
+            default:
+              Serial1.println("Invalid Command");
+              break;
+            }
+          }
+        } while (done == false);
+        Zumo32U4Encoders encoders;
+        Zumo32U4ProximitySensors Sensors;
+        Sensors.initThreeSensors();
+        encoders.init(); 
+        motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+        delay(1000);
+        Sensors.read();
+        roomCount++;
+        if (Sensors.countsFrontWithLeftLeds() >= 1 || Sensors.countsFrontWithRightLeds() >= 1) {
+          OccupidRooms.addAtEnd(roomCount);
+          Serial1.println("Surviver found in room " + roomCount);
+        }
+        Serial1.println("Exiting Room");
+        motors.setSpeeds(-FORWARD_SPEED, -FORWARD_SPEED);
+        delay(1000);
+                    switch (order)
+            {
+            case 'L':
+              turn('R');
+              break;
+            case 'R':
+              turn('L');
+              break;
+            }
+        
 }
 
 //turn sensor setup and code from
