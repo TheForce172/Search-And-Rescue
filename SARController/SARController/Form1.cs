@@ -140,6 +140,8 @@ namespace SARController
                 button4.Enabled = false;
                 button5.Enabled = false;
                 btn_Start.Enabled = true;
+                btn_send.Enabled = true;
+                textBox1.Enabled = true;
                 port.Write("A");
             } else
             {
@@ -161,6 +163,11 @@ namespace SARController
         private void btn_send_Click(object sender, EventArgs e)
         {
             port.Write(textBox1.Text);
+        }
+
+        private void button6_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

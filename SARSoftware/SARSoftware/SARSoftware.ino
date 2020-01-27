@@ -3,7 +3,7 @@
 
 #include <Zumo32U4.h>
 
-#define QTR_THRESHOLD 100 // microseconds
+#define QTR_THRESHOLD 500 // microseconds
 
 Zumo32U4LineSensors lineSensors;
 Zumo32U4Motors motors;
@@ -12,8 +12,8 @@ L3G gyro;
 #define REVERSE_SPEED 200 // 0 is stopped, 400 is full speed
 #define TURN_SPEED 200
 #define FORWARD_SPEED 200
-#define REVERSE_DURATION 200 // ms
-#define TURN_DURATION 300    // ms
+#define REVERSE_DURATION 100 // ms
+#define TURN_DURATION 50    // ms
 #define NUM_SENSORS 3
 unsigned int lineSensorValues[NUM_SENSORS];
 bool autoMode = false;
@@ -60,37 +60,41 @@ void loop()
 
 String borderPathing()
 {
+  delay(20);
   lineSensors.read(lineSensorValues);
-  if (lineSensorValues[0] < QTR_THRESHOLD)
+    if (lineSensorValues[0] > QTR_THRESHOLD && lineSensorValues[NUM_SENSORS - 1] > QTR_THRESHOLD){
+    motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+    delay(400);
+    motors.setSpeeds(0, 0);
+    return("Blocked");
+  }
+  else if (lineSensorValues[0] > QTR_THRESHOLD)
   {
     // If leftmost sensor detects line, reverse and turn to the
     // right.
+    Serial1.println("Wall Left");
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
     delay(REVERSE_DURATION);
     motors.setSpeeds(TURN_SPEED, -TURN_SPEED);
     delay(TURN_DURATION);
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
-  else if (lineSensorValues[NUM_SENSORS - 1] < QTR_THRESHOLD)
+  else if (lineSensorValues[NUM_SENSORS - 1] > QTR_THRESHOLD)
   {
     // If rightmost sensor detects line, reverse and turn to the
     // left.
+    Serial1.println("Wall right");
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
     delay(REVERSE_DURATION);
     motors.setSpeeds(-TURN_SPEED, TURN_SPEED);
     delay(TURN_DURATION);
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
-  else if (lineSensorValues[NUM_SENSORS] < QTR_THRESHOLD){
-    motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
-    delay(300);
-    motors.setSpeeds(0, 0);
-    return("Blocked");
-  }
   else
   {
     // Otherwise, go straight.
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+    
   }
   return("clear");
 }
@@ -101,7 +105,7 @@ void manualOrder(int order)
   {
   case 'F':
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
-    Serial1.println('F');
+    Serial1.println('F'); 
     break;
   case 'L':
     turn('L');
@@ -135,7 +139,7 @@ void autoModeRun(int order)
   switch (order)
   {
   case 'G':
-    Serial1.println('Starting Auto');
+    Serial1.println("Starting Auto");
     do
     {
       state = borderPathing();
