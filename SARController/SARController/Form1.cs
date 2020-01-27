@@ -98,6 +98,7 @@ namespace SARController
             btn_send.Enabled = false;
             textBox1.Enabled = false;
             btn_Start.Enabled = false;
+            button6.Enabled = false;
             try
             {
                 port = new SerialPort(portName, 9600);
@@ -114,6 +115,7 @@ namespace SARController
                 checkBox1.Enabled = true;
                 btn_send.Enabled = false;
                 textBox1.Enabled = false;
+                button6.Enabled = false;
             }
             catch (Exception err)
             {
@@ -142,6 +144,7 @@ namespace SARController
                 btn_Start.Enabled = true;
                 btn_send.Enabled = true;
                 textBox1.Enabled = true;
+                button6.Enabled = true;
                 port.Write("A");
             } else
             {
@@ -151,6 +154,7 @@ namespace SARController
                 button4.Enabled = true;
                 button5.Enabled = true;
                 btn_Start.Enabled = false;
+                button6.Enabled = false;
                 port.Write("M");
             }
         }
@@ -167,7 +171,7 @@ namespace SARController
 
         private void button6_Click_1(object sender, EventArgs e)
         {
-
+            port.Write("Ro");
         }
     }
 }
