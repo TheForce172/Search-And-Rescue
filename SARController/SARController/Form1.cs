@@ -64,7 +64,7 @@ namespace SARController
             LabelContents = "Data Received:" + indata;
             this.Invoke(new MethodInvoker(delegate ()
             {
-                databox.Text = databox.Text + indata + "\n";
+                databox.AppendText(indata + "\n");
             }));
         }
 
@@ -171,7 +171,7 @@ namespace SARController
 
         private void button6_Click_1(object sender, EventArgs e)
         {
-            port.Write("Ro");
+            port.Write("r");
         }
     }
 }

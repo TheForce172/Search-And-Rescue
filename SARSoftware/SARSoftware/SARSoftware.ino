@@ -147,8 +147,8 @@ void autoModeRun(int order)
       {
         order = Serial1.read();
         switch(order){
-          case 'Ro': {
-            //roomSearch();
+          case 'r': {
+            roomSearch();
             break;
           }
                      default:
@@ -202,8 +202,10 @@ void autoModeRun(int order)
 }
 
 void roomSearch(){
-  bool done;
+  bool done = false;
   int order;
+  Serial1.println("Which way to room?");
+  motors.setSpeeds(0,0);
           do
         {
           if (Serial1.available() > 0)
@@ -236,16 +238,19 @@ void roomSearch(){
         Sensors.initThreeSensors();
         encoders.init(); 
         motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
-        delay(1000);
+        delay(500);
+        motors.setSpeeds(0, 0);
         Sensors.read();
         roomCount++;
-        if (Sensors.countsFrontWithLeftLeds() >= 1 || Sensors.countsFrontWithRightLeds() >= 1) {
+        if (Sensors.countsFrontWithLeftLeds() >= 2 || Sensors.countsFrontWithRightLeds() >= 2) {
           OccupidRooms.addAtEnd(roomCount);
           Serial1.println("Surviver found in room " + roomCount);
+          Zumo32U4Buzzer buzzer;
+          buzzer.playNote('B',2000, 10);
         }
         Serial1.println("Exiting Room");
         motors.setSpeeds(-FORWARD_SPEED, -FORWARD_SPEED);
-        delay(1000);
+        delay(500);
                     switch (order)
             {
             case 'L':
