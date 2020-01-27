@@ -16,13 +16,16 @@ namespace SARController
         SerialPort port;
         string labelContents = "";
         public Form1()
-        {
+        { 
             InitializeComponent();
             List<string> data = new List<string>();
             data.Add(" ");
             comboBox1.DataSource = data.Concat(SerialPort.GetPortNames()).ToList();
             button1.Enabled = false;
             button2.Enabled = false;
+            btn_send.Enabled = false;
+            textBox1.Enabled = false;
+            btn_Start.Enabled = false;
         }
 
         private string LabelContents
@@ -36,17 +39,22 @@ namespace SARController
                 labelContents = value;
             }
         }
-
+        //Forward
         private void button1_Click(object sender, EventArgs e)
         {
-            port.Write("H");
+            port.Write("F");
         }
-
+        //Left
         private void button2_Click(object sender, EventArgs e)
         {
             port.Write("L");
         }
-
+        //Reverse
+        private void button4_Click(object sender, EventArgs e)
+        {
+            port.Write("B");
+        }
+        //Update Log
         private void DataReceivedHandler(
             object sender,
             SerialDataReceivedEventArgs e)
@@ -54,6 +62,10 @@ namespace SARController
             SerialPort sp = (SerialPort)sender;
             string indata = sp.ReadLine();
             LabelContents = "Data Received:" + indata;
+            this.Invoke(new MethodInvoker(delegate ()
+            {
+                databox.AppendText(indata + "\n");
+            }));
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -65,7 +77,7 @@ namespace SARController
         {
             label1.Text = LabelContents;  // update the contents of the text box...
         }
-
+        //Set port
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             string portName = (string)comboBox1.SelectedItem;
@@ -79,6 +91,14 @@ namespace SARController
             }
             button1.Enabled = false;
             button2.Enabled = false;
+            button3.Enabled = false;
+            button4.Enabled = false;
+            button5.Enabled = false;
+            checkBox1.Enabled = false;
+            btn_send.Enabled = false;
+            textBox1.Enabled = false;
+            btn_Start.Enabled = false;
+            button6.Enabled = false;
             try
             {
                 port = new SerialPort(portName, 9600);
@@ -89,11 +109,70 @@ namespace SARController
                 timer1.Start();
                 button1.Enabled = true;
                 button2.Enabled = true;
+                button3.Enabled = true;
+                button4.Enabled = true;
+                button5.Enabled = true;
+                checkBox1.Enabled = true;
+                btn_send.Enabled = false;
+                textBox1.Enabled = false;
+                button6.Enabled = false;
             }
             catch (Exception err)
             {
                 labelContents = "not connected yet ";
             }
+        }
+        //Right
+        private void button3_Click(object sender, EventArgs e)
+        {
+            port.Write("R");
+        }
+        //Stop
+        private void button5_Click(object sender, EventArgs e)
+        {
+            port.Write("S");
+        }
+        //Set mode
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+            {
+                button1.Enabled = false;
+                button2.Enabled = false;
+                button3.Enabled = false;
+                button4.Enabled = false;
+                button5.Enabled = false;
+                btn_Start.Enabled = true;
+                btn_send.Enabled = true;
+                textBox1.Enabled = true;
+                button6.Enabled = true;
+                port.Write("A");
+            } else
+            {
+                button1.Enabled = true;
+                button2.Enabled = true;
+                button3.Enabled = true;
+                button4.Enabled = true;
+                button5.Enabled = true;
+                btn_Start.Enabled = false;
+                button6.Enabled = false;
+                port.Write("M");
+            }
+        }
+        //Start Auto mode
+        private void button6_Click(object sender, EventArgs e)
+        {
+            port.Write("G");
+        }
+        //Send message
+        private void btn_send_Click(object sender, EventArgs e)
+        {
+            port.Write(textBox1.Text);
+        }
+        //signal rooom, has button due to speed reqired
+        private void button6_Click_1(object sender, EventArgs e)
+        {
+            port.Write("r");
         }
     }
 }
