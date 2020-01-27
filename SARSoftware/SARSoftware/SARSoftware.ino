@@ -4,11 +4,12 @@
 #include <Zumo32U4.h>
 
 #define QTR_THRESHOLD 500 // microseconds
-
+//Reused Zumo Components
 Zumo32U4LineSensors lineSensors;
 Zumo32U4Motors motors;
 L3G gyro;
 
+//Speeds and defienes for automatic movement
 #define REVERSE_SPEED 200 // 0 is stopped, 400 is full speed
 #define TURN_SPEED 200
 #define FORWARD_SPEED 200
@@ -18,19 +19,21 @@ L3G gyro;
 unsigned int lineSensorValues[NUM_SENSORS];
 bool autoMode = false;
 
+//defines for Turn algorithem
 const int32_t turnAngle45 = 0x20000000;
 int16_t gyroOffset;
 uint16_t gyroLastUpdate = 0;
 uint32_t turnAngle = 0;
 int16_t turnRate;
 
+//Used to track rooms(not fully implmented)
 uint16_t roomCount=0;
 List<int> OccupidRooms;
 
 void setup()
 {
   // put your setup code here, to run once:
-
+  //Initalise devices
   Serial1.begin(9600);
   turnSensorSetup();
   lineSensors.initThreeSensors();
@@ -57,6 +60,10 @@ void loop()
     }
   }
 }
+
+//String borderPathing
+//no prameters
+//returns either clear or blocked depending on what is encounterd
 
 String borderPathing()
 {
@@ -133,6 +140,9 @@ void manualOrder(int order)
   }
 }
 
+//Main automode loop
+//one prameter (a char in int form
+
 void autoModeRun(int order)
 {
   String state;
@@ -142,7 +152,9 @@ void autoModeRun(int order)
     Serial1.println("Starting Auto");
     do
     {
+      //run autopathing
       state = borderPathing();
+      //chick if user has identified a room
       if (Serial1.available() > 0)
       {
         order = Serial1.read();
@@ -156,6 +168,7 @@ void autoModeRun(int order)
               break;
         }
       }
+      //Handels corners or end of path
       if (state == "Blocked")
       {
         Serial1.println("Blocked: Please provide orders");
@@ -182,6 +195,9 @@ void autoModeRun(int order)
               turn('B');
               done = true;
               break;
+              case'C':
+              done = true;
+              break;
             case 'H':
               //returnMode();
               done = true;
@@ -195,17 +211,24 @@ void autoModeRun(int order)
         } while (done == false);
       }
     } while (state != "end");
+    break;
+    case 'M':
+      autoMode = false;
+      break;
   default:
     Serial1.println("Invalid Command");
     break;
   }
 }
-
+//room searhing function
+//no parmeters no returns
 void roomSearch(){
   bool done = false;
   int order;
   Serial1.println("Which way to room?");
+  //pause the robot
   motors.setSpeeds(0,0);
+  //wait for user to say where to go
           do
         {
           if (Serial1.available() > 0)
@@ -251,6 +274,7 @@ void roomSearch(){
         Serial1.println("Exiting Room");
         motors.setSpeeds(-FORWARD_SPEED, -FORWARD_SPEED);
         delay(500);
+        //invert previus order to resume course
                     switch (order)
             {
             case 'L':

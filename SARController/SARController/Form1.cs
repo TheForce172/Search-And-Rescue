@@ -39,22 +39,22 @@ namespace SARController
                 labelContents = value;
             }
         }
-
+        //Forward
         private void button1_Click(object sender, EventArgs e)
         {
             port.Write("F");
         }
-
+        //Left
         private void button2_Click(object sender, EventArgs e)
         {
             port.Write("L");
         }
-
+        //Reverse
         private void button4_Click(object sender, EventArgs e)
         {
             port.Write("B");
         }
-
+        //Update Log
         private void DataReceivedHandler(
             object sender,
             SerialDataReceivedEventArgs e)
@@ -77,7 +77,7 @@ namespace SARController
         {
             label1.Text = LabelContents;  // update the contents of the text box...
         }
-
+        //Set port
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             string portName = (string)comboBox1.SelectedItem;
@@ -122,16 +122,17 @@ namespace SARController
                 labelContents = "not connected yet ";
             }
         }
-
+        //Right
         private void button3_Click(object sender, EventArgs e)
         {
             port.Write("R");
         }
-
+        //Stop
         private void button5_Click(object sender, EventArgs e)
         {
             port.Write("S");
         }
+        //Set mode
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox1.Checked)
@@ -158,17 +159,17 @@ namespace SARController
                 port.Write("M");
             }
         }
-
+        //Start Auto mode
         private void button6_Click(object sender, EventArgs e)
         {
             port.Write("G");
         }
-
+        //Send message
         private void btn_send_Click(object sender, EventArgs e)
         {
             port.Write(textBox1.Text);
         }
-
+        //signal rooom, has button due to speed reqired
         private void button6_Click_1(object sender, EventArgs e)
         {
             port.Write("r");
